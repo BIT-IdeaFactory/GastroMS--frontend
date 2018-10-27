@@ -1,31 +1,32 @@
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View, FlatList,SafeAreaView,StatusBar} from 'react-native';
+import {Platform, StyleSheet, Text, View, FlatList, SafeAreaView, StatusBar} from 'react-native';
 
 export default class App extends Component {
 
-    generateMockData(){
-        const list = [];
+    constructor(props){
+        super(props);
+        this.state = {isLoading: true};
+        this.getEateries()
+    }
 
-        for(let i=0;i<30;i++){
-            list.push({name: `Jakaś nazwa ${i}`});
-            
-        }
-
-        return list;
+    getEateries(){
+        fetch("http://localhost:9000/allEateries").then((response)=>response.json()).then((responseJson)=>{
+            this.setState({
+               isLoading: false,
+               dataSource: responseJson
+            });
+        })
     }
 
     render() {
         return (
             <View style={{ marginTop: StatusBar.currentHeight }}>
             <SafeAreaView>
-                
                 <FlatList
-                
-                    data={this.generateMockData()}
+                    data= {this.state.isLoading ? []:this.state.dataSource}
                     renderItem={({item}) => <View style={ styles.listItem }>
-                        <Text style={ styles.listItemNameText }>{item.name}</Text>                   
+                        <Text style={ styles.listItemNameText }>{item.name}</Text>
                     </View>}
-                    keyExtractor={(item,index)=>index.toString()}
                 />
             </SafeAreaView>
             </View>
