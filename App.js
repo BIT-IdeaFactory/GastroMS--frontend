@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View, FlatList,SafeAreaView} from 'react-native';
+import {Platform, StyleSheet, Text, View, FlatList,SafeAreaView,StatusBar} from 'react-native';
 
 export default class App extends Component {
 
@@ -8,6 +8,7 @@ export default class App extends Component {
 
         for(let i=0;i<30;i++){
             list.push({name: `Jakaś nazwa ${i}`});
+            
         }
 
         return list;
@@ -15,14 +16,19 @@ export default class App extends Component {
 
     render() {
         return (
+            <View style={{ marginTop: StatusBar.currentHeight }}>
             <SafeAreaView>
+                
                 <FlatList
+                
                     data={this.generateMockData()}
                     renderItem={({item}) => <View style={ styles.listItem }>
-                        <Text style={ styles.listItemNameText }>{item.name}</Text>
+                        <Text style={ styles.listItemNameText }>{item.name}</Text>                   
                     </View>}
+                    keyExtractor={(item,index)=>index.toString()}
                 />
             </SafeAreaView>
+            </View>
         );
     }
 }
