@@ -3,13 +3,13 @@ import {StyleSheet, Text, TouchableHighlight, View} from "react-native";
 
 export class ListItem extends React.Component {
 
-    constructor(props){
-        super(props);
-    }
+    navigateToDetails = () => {
+        this.props.context.navigation.navigate('Details', {item: this.props.item})
+    };
 
-    render(){
+    render() {
         return (
-            <TouchableHighlight onPress={()=>this.props.context.navigation.navigate('Details', {item: this.props.item})}>
+            <TouchableHighlight onPress={this.navigateToDetails}>
                 <View style={styles.listItem}>
                     <Text style={styles.listItemNameText}>{this.props.item.name}</Text>
                 </View>

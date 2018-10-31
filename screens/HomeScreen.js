@@ -3,9 +3,11 @@ import {FlatList, SafeAreaView, StatusBar, View} from "react-native";
 import {ListItem} from "../customviews/ListItem";
 
 export class HomeScreen extends React.Component {
+
     static navigationOptions = {
         title: 'List of eateries',
     };
+
     constructor(props) {
         super(props);
         this.state = {
@@ -29,7 +31,7 @@ export class HomeScreen extends React.Component {
                 <SafeAreaView>
                     <FlatList
                         data={this.state.isLoading ? [] : this.state.dataSource}
-                        renderItem={({item}) => <ListItem context={this.props} item = {item}/>}
+                        renderItem={({item}) => <ListItem context={this.props} item={item}/>}
                     />
                 </SafeAreaView>
             </View>
