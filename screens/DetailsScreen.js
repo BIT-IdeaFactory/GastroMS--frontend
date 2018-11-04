@@ -1,23 +1,41 @@
-import React from "react";
-import {SafeAreaView, StatusBar, Text, View} from "react-native";
+import React from 'react'
+import { StyleSheet, Text, View } from 'react-native'
 
 export class DetailsScreen extends React.Component {
 
-    static navigationOptions = {
-        title: 'Details',
-    };
-
-    render() {
-        const passedData = this.props.navigation.getParam('item', {name: 'Data corrupted, sorry', x: 1, y: 1});
-
-        return (
-            <View style={{marginTop: StatusBar.currentHeight}}>
-                <SafeAreaView>
-                    <Text>{passedData.name}</Text>
-                    <Text>x = {passedData.x}</Text>
-                    <Text>y = {passedData.y}</Text>
-                </SafeAreaView>
-            </View>
-        )
+  constructor (props) {
+    super(props)
+    this.state = {
+      date: new Date()
     }
+  }
+
+  static navigationOptions = ({ navigation }) => ({
+    title: navigation.state.params.item.name
+  })
+
+  render () {
+    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+    const item = this.props.navigation.state.params.item
+
+    return (
+      <View style={{ padding: 8 }}>
+        {item.hours.map(day => (
+          <Text
+            style={days[this.state.date.getDay()] === day.day ? styles.selectedDay : styles.plainDay}>{day.day} {day.start}-{day.end}</Text>
+        ))}
+      </View>
+    )
+  }
 }
+
+const styles = StyleSheet.create({
+  selectedDay: {
+    color: 'blue',
+    padding: 8
+  },
+  plainDay: {
+    color: 'black',
+    padding: 8
+  }
+})
