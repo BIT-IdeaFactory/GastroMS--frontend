@@ -1,79 +1,71 @@
 import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View, Dimensions, ActivityIndicator } from 'react-native'
 import MapView from 'react-native-maps'
+
+const { width, height } = Dimensions.get('window')
+const ASPECT_RATIO = width / height
+const LATITUDE_DELTA = 0.0922
+const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO
+
+const EDGE_PADDING = {
+  top: 100,
+  right: 100,
+  bottom: 100,
+  left: 100
+}
 
 export class DetailsScreen extends React.Component {
 
   constructor (props) {
     super(props)
+    this.map = null
     this.state = {
       date: new Date(),
-      eateryPosition: {
-        latitude: undefined,
-        longitude: undefined,
-        isDefined: false
-      },
-      devicePosition: {
-        latitude: undefined,
-        longitude: undefined,
-        isDefined: false
-      },
-      region: {
-        latitude: undefined,
-        longitude: undefined,
-        latitudeDelta: undefined,
-        longitudeDelta: undefined
-      },
+      isLoading: true,
+      isDevicePositionDefined: false
     }
-    this.getEateryPosition(this.props.navigation.state.params.item.name)
   }
 
-  calculateDelta (coord1, coord2) {
-    return Math.abs(coord1 - coord2) * 2.5
+  animateToRegion = () => {
+    this.map.fitToCoordinates([this.state.devicePosition, this.state.eateryPosition], {
+      edgePadding: EDGE_PADDING,
+      animated: true
+    })
   }
 
   getEateryPosition (name) {
     fetch(`http://localhost:9000/Foodplace/${name}`).then((response) => response.json()).then((responseJson) => {
       this.setState({
+        eateryPosition: {
+          latitude: responseJson.coordX,
+          longitude: responseJson.coordY
+        },
         region: {
           latitude: responseJson.coordX,
           longitude: responseJson.coordY,
-          latitudeDelta: this.state.devicePosition.isDefined ? this.calculateDelta(responseJson.coordX, this.state.devicePosition.latitude) : 0.0922,
-          longitudeDelta: this.state.devicePosition.isDefined ? this.calculateDelta(responseJson.coordY, this.state.devicePosition.longitude) : 0.0421
-        }
-      })
-      this.setState({
-        eateryPosition: {
-          latitude: responseJson.coordX,
-          longitude: responseJson.coordY,
-          isDefined: true
-        }
+          latitudeDelta: LATITUDE_DELTA,
+          longitudeDelta: LONGITUDE_DELTA
+        },
+        isLoading: false
       })
     })
   }
 
   componentDidMount () {
+    this.getEateryPosition(this.props.navigation.state.params.item.name)
     navigator.geolocation.getCurrentPosition((position) => {
-        let lat = position.coords.latitude
-        let long = position.coords.longitude
-
         this.setState({
-          devicePosition: {
-            latitude: lat,
-            longitude: long,
-            isDefined: true
-          }
-        })
-        this.setState({
-          region: {
-            latitude: this.state.eateryPosition.latitude,
-            longitude: this.state.eateryPosition.longitude,
-            latitudeDelta: this.state.eateryPosition.isDefined ? this.calculateDelta(this.state.eateryPosition.latitude, this.state.devicePosition.latitude) : 0.0922,
-            longitudeDelta: this.state.eateryPosition.isDefined ? this.calculateDelta(this.state.eateryPosition.longitude, this.state.devicePosition.longitude) : 0.0421
-          }
+          devicePosition: position,
+          isDevicePositionDefined: true,
         })
       }, (error) => alert(JSON.stringify(error)),
-      { enableHighAccuracy: true, timeout: 20000, maximumAge: 2000 })
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 })
+  }
+
+  componentDidUpdate () {
+    if (this.state.isLoading === false && this.state.isDevicePositionDefined === true) {
+      this.animateToRegion()
+    }
   }
 
   static navigationOptions = ({ navigation }) => ({
@@ -94,14 +86,12 @@ export class DetailsScreen extends React.Component {
         </View>
 
         <View style={{ flex: 2 }}>
-          {this.state.eateryPosition.isDefined ?
-            <MapView style={styles.map}
-                     region={this.state.region}
-                     showsUserLocation={true}>
-              <MapView.Marker coordinate={this.state.eateryPosition}/>
-            </MapView> :
-            /* TODO change to some kind of ProgressBar */
-            <Text>Waiting for data...</Text>}
+          {!this.state.isLoading ? <MapView style={styles.map}
+                   initialRegion={this.state.region}
+                   showsUserLocation={true}
+                   ref={(map) => this.map = map}>
+            <MapView.Marker coordinate={this.state.eateryPosition}/>
+          </MapView> : <View><ActivityIndicator size={'small'} color={'rgba(0, 55, 167, 0.6)'}/></View>}
         </View>
       </View>
     )
@@ -109,16 +99,6 @@ export class DetailsScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  marker: {
-    height: 20,
-    width: 20,
-    borderRadius: 20 / 2,
-    overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: 'white',
-    backgroundColor: '#007AFF'
-
-  },
   selectedDay: {
     color: 'blue',
     padding: 8
