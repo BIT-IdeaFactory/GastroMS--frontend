@@ -87,9 +87,9 @@ export class DetailsScreen extends React.Component {
 
         <View style={{ flex: 2 }}>
           {!this.state.isLoading ? <MapView style={styles.map}
-                   initialRegion={this.state.region}
-                   showsUserLocation={true}
-                   ref={(map) => this.map = map}>
+                                            initialRegion={this.state.region}
+                                            showsUserLocation={true}
+                                            ref={(map) => this.map = map}>
             <MapView.Marker coordinate={this.state.eateryPosition}/>
           </MapView> : <View><ActivityIndicator size={'small'} color={'rgba(0, 55, 167, 0.6)'}/></View>}
         </View>
