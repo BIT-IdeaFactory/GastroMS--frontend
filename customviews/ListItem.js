@@ -11,7 +11,7 @@ export class ListItem extends React.Component {
     return (
       <TouchableHighlight onPress={this.navigateToDetails}>
         <View style={styles.listItem}>
-          <Text style={styles.listItemNameText}>{this.props.item.name}</Text>
+          <Text style={styles.listItemNameText}>{this.props.item.foodplace.name}</Text>
         </View>
       </TouchableHighlight>
     )

@@ -11,29 +11,18 @@ export class DetailsScreen extends React.Component {
   constructor (props) {
     super(props)
     this.state = {
-      date: new Date(),
-      isLoading: true
+      date: new Date()
     }
-    this.getEateryPosition(this.props.navigation.state.params.item.name)
+    this.region = {
+      ...this.props.navigation.state.params.item.foodplace,
+      latitudeDelta: LATITUDE_DELTA,
+      longitudeDelta: LONGITUDE_DELTA
+    }
   }
 
-  getEateryPosition (name) {
-    fetch(`http://localhost:9000/Foodplace/${name}`).then((response) => response.json()).then((responseJson) => {
-      this.setState({
-        eateryPosition: {
-          latitude: responseJson.coordX,
-          longitude: responseJson.coordY
-        },
-        region: {
-          latitude: responseJson.coordX,
-          longitude: responseJson.coordY,
-          latitudeDelta: LATITUDE_DELTA,
-          longitudeDelta: LONGITUDE_DELTA
-        },
-        isLoading: false
-      })
-    })
-  }
+  static navigationOptions = ({ navigation }) => ({
+    title: navigation.state.params.item.foodplace.name
+  })
 
   render () {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
@@ -51,9 +40,9 @@ export class DetailsScreen extends React.Component {
         <View style={{ flex: 2 }}>
           {!this.state.isLoading
             ? <MapView style={styles.map}
-              initialRegion={this.state.region}
-              showsUserLocation={true}>
-              <MapView.Marker coordinate={this.state.eateryPosition}/>
+                       initialRegion={this.region}
+                       showsUserLocation={true}>
+              <MapView.Marker coordinate={item.foodplace}/>
             </MapView> : <View><ActivityIndicator size={'small'} color={'rgba(0, 55, 167, 0.6)'}/></View>}
         </View>
       </View>
