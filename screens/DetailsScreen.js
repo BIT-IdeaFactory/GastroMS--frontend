@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, Text, View, Dimensions, ActivityIndicator } from 'react-native'
+import { StyleSheet, Text, View, Dimensions, ActivityIndicator, Button } from 'react-native'
 import MapView from 'react-native-maps'
 
 const { width, height } = Dimensions.get('window')
@@ -24,6 +24,22 @@ export class DetailsScreen extends React.Component {
     title: navigation.state.params.item.foodplace.name
   })
 
+  _vote (open, name) {
+    let requestBody = JSON.stringify({
+      name: `${name}`,
+      open: open,
+    })
+
+    fetch('http://localhost:9000/postVote', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: requestBody,
+    })
+  }
+
   render () {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
     const item = this.props.navigation.state.params.item
@@ -35,6 +51,11 @@ export class DetailsScreen extends React.Component {
             <Text
               style={days[this.state.date.getDay()] === day.day ? styles.selectedDay : styles.plainDay}>{day.day} {day.start}-{day.end}</Text>
           ))}
+          <View style={styles.buttonsContainer}>
+            <Button title={'Opened'} onPress={() => this._vote(true, item.foodplace.name)}/>
+
+            <Button title={'Closed'} onPress={() => this._vote(false, item.foodplace.name)}/>
+          </View>
         </View>
 
         <View style={{ flex: 2 }}>
@@ -51,6 +72,14 @@ export class DetailsScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
+  buttonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingBottom: 10,
+    paddingLeft: 8,
+    paddingRight: 8,
+
+  },
   selectedDay: {
     color: 'blue',
     padding: 8
